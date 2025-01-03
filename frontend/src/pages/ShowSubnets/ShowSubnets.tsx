@@ -11,38 +11,41 @@ import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbList,
+  BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { Separator } from "@/components/ui/separator";
 // hooks imports
 import { useEffect, useState } from "react";
 // external libraries imports
-import axios from "axios";
 import { Toaster, toast } from "sonner";
-import { Separator } from "@/components/ui/separator";
+import { Slash } from "lucide-react";
+import axios from "axios";
 // types imports
-import { PodItem } from "@/types";
+import { KeaDhcp4ConfigType } from "@/types";
 
-// dashboard component
-const Dashboard = () => {
-  // usestate to store pods
-  const [pods, setPods] = useState<{ items: PodItem[] } | null>(null);
-
+// showsubnet component
+const ShowShubnet = () => {
+  // state to store the kea-dhcp4.conf file
+  const [keaDhcp4Conf, setKeaDhcp4Conf] = useState<KeaDhcp4ConfigType | null>(
+    null,
+  );
   useEffect(() => {
-    // fetch pods from the api
-    const getPods = async () => {
+    // function to fetch subnets from the backend
+    const getSubnets = async () => {
       try {
-        const response = await axios.get("http://localhost:8080/pods");
-        setPods(response.data.pods);
-        toast.success("Pods fetched successfully");
+        const response = await axios.get("http://localhost:8080/configMap");
+        setKeaDhcp4Conf(JSON.parse(response.data["kea-dhcp4.conf"]));
+        toast.success("Subnets fetched successfully");
       } catch (error: unknown) {
         if (axios.isAxiosError(error)) {
           console.error(error.response);
         } else {
           console.error("Unexpected error:", error);
         }
-        toast.error("Failed to fetch pods");
+        toast.error("Failed to fetch subnets");
       }
     };
-    getPods();
+    getSubnets();
   }, []);
 
   return (
@@ -52,75 +55,61 @@ const Dashboard = () => {
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem className="font-semibold text-base">
-              Dashboard
+              Subnets
+            </BreadcrumbItem>
+            <BreadcrumbSeparator>
+              <Slash />
+            </BreadcrumbSeparator>
+            <BreadcrumbItem className="font-semibold text-base">
+              Show Subnets
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
         <div>
-          <p className="font-bold text-xl">Running Pods</p>
-          <p className="text-gray-500">
-            Pods that are currently running in the cluster wuith configured
-            labels.
-          </p>
+          <p className="font-bold text-xl">Configured Subnets</p>
+          <p className="text-gray-500">Subnets that are configured in Kea.</p>
         </div>
         <Separator />
         <Table className="bg-gray-30 w-2/3 overflow-hidden">
           <TableHeader className="bg-gray-100 border-b">
             <TableRow>
               <TableHead className="px-6 py-4 font-semibold text-gray-800 text-sm">
-                Pod Name
+                Subnet
               </TableHead>
               <TableHead className="px-6 py-4 font-semibold text-gray-800 text-sm">
-                Status
+                Pool Start
               </TableHead>
               <TableHead className="px-6 py-4 font-semibold text-gray-800 text-sm">
-                IP
+                Pool End
               </TableHead>
               <TableHead className="px-6 py-4 font-semibold text-gray-800 text-sm">
-                Label
+                Router
+              </TableHead>
+              <TableHead className="px-6 py-4 font-semibold text-gray-800 text-sm">
+                DNS
               </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody className="border-b divide-y divide-gray-200">
-            {pods?.items == null && (
-              <TableRow>
-                <TableCell
-                  colSpan={4}
-                  className="px-6 py-4 text-gray-600 text-sm"
-                >
-                  No pods found with this label.
-                </TableCell>
-              </TableRow>
-            )}
-            {pods?.items?.map((pod) => (
+            {keaDhcp4Conf?.Dhcp4?.subnet4?.map((subnet) => (
               <TableRow
-                key={pod.metadata.name}
+                key={subnet.id}
                 className="hover:bg-gray-50 transition-colors"
               >
                 <TableCell className="px-6 py-4 font-medium text-gray-900 text-sm">
-                  {pod.metadata.name}
+                  {subnet.subnet}
                 </TableCell>
                 <TableCell className="px-6 py-4 text-gray-600 text-sm">
-                  <span
-                    className={`px-3 py-1 rounded-full text-xs font-medium 
-                  ${
-                    pod.status.phase.toLowerCase() === "running"
-                      ? "bg-green-100 text-green-800"
-                      : pod.status.phase.toLowerCase() === "pending"
-                        ? "bg-yellow-100 text-yellow-800"
-                        : "bg-red-100 text-red-800"
-                  }`}
-                  >
-                    {pod.status.phase}
-                  </span>
+                  {subnet.pools[0].pool.trim().split("-")[0]}
                 </TableCell>
                 <TableCell className="px-6 py-4 text-gray-600 text-sm">
-                  {pod.status.podIP}
+                  {subnet.pools[0].pool.trim().split("-")[1]}
                 </TableCell>
                 <TableCell className="px-6 py-4 text-gray-600 text-sm">
-                  <span className="bg-blue-100 px-3 py-1 rounded-full font-medium text-blue-800 text-xs">
-                    {pod.metadata.labels.app}
-                  </span>
+                  {subnet["option-data"][0].data}
+                </TableCell>
+                <TableCell className="px-6 py-4 text-gray-600 text-sm">
+                  {subnet["option-data"][1].data}
                 </TableCell>
               </TableRow>
             ))}
@@ -131,4 +120,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default ShowShubnet;

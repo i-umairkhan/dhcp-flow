@@ -19,6 +19,8 @@ func main() {
 	// routes
 	mux.HandleFunc("/configOptions", handlers.ConfigOptionsHandler)
 	mux.HandleFunc("/kubeConfig", handlers.KubeConfigHandler)
+	mux.HandleFunc("/pods", handlers.PodsHandler)
+	mux.HandleFunc("/configMap", handlers.ConfigMapHandler)
 
 	// cors handler
 	c := cors.New(cors.Options{

@@ -18,13 +18,15 @@ func ConfigOptionsHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		// get config options
 		var configOptions ConfigOptions
+		// query db for config options
 		err := db.DB.QueryRow("SELECT namespace, label FROM configOptions").Scan(&configOptions.Namespace, &configOptions.Label)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(err.Error()))
 			return
 		}
-		w.WriteHeader(200)
+		// send response
+		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(configOptions)
 	} else if r.Method == "POST" {
 		// update config options
@@ -35,16 +37,21 @@ func ConfigOptionsHandler(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte(err.Error()))
 			return
 		}
+		// update config options in db
 		_, err = db.DB.Exec("UPDATE configOptions SET namespace = $1, label = $2", &configOptions.Namespace, &configOptions.Label)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(err.Error()))
 			return
 		}
-		w.WriteHeader(200)
+		// send response
+		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(configOptions)
 	} else {
-		w.WriteHeader(405)
-		w.Write([]byte("Method not allowed"))
+		// method not allowed
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		json.NewEncoder(w).Encode(struct {
+			Message string `json:"message"`
+		}{Message: "Method not allowed"})
 	}
 }
