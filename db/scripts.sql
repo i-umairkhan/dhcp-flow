@@ -10,6 +10,16 @@ CREATE TABLE configOptions (
     label TEXT
 );
 
+-- subnet table for storing subnets
+CREATE TABLE subnets (
+    id INTEGER PRIMARY KEY,
+    subnet TEXT UNIQUE,
+    pool TEXT,
+    router TEXT,
+    dns TEXT,
+    status TEXT
+);
+
 -- insert default user and config options
 INSERT INTO users (username, password) VALUES ('admin', 'admin');
-INSERT INTO configOptions (namespace, label) VALUES ('default', 'app=kea');
+INSERT INTO configOptions (namespace, label) VALUES ('default', 'app=kea-dhcp4');

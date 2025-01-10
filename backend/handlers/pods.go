@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/i-umairkhan/dhcp-flow/db"
+	"github.com/i-umairkhan/dhcp-flow/types"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -18,7 +19,7 @@ import (
 func PodsHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		// get pods
-		var configOptions ConfigOptions
+		var configOptions types.ConfigOptions
 		// query db for config options
 		err := db.DB.QueryRow("SELECT namespace, label FROM configOptions").Scan(&configOptions.Namespace, &configOptions.Label)
 		if err != nil {

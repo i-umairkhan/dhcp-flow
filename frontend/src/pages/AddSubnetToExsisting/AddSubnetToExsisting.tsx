@@ -9,39 +9,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-// hooks imports
-import { useEffect, useState } from "react";
 // external libraries imports
 import { toast, Toaster } from "sonner";
 import axios from "axios";
 import { Slash } from "lucide-react";
-// types imports
-import { KeaDhcp4ConfigType } from "@/types";
 
 // showsubnet component
 const AddSubnetToExsisting = () => {
-  // state variables to store kea configuration and input subnet
-  const [keaDhcp4Conf, setKeaDhcp4Conf] = useState<KeaDhcp4ConfigType | null>(
-    null,
-  );
-
-  useEffect(() => {
-    // function to fetch subnets from backend
-    const getSubnets = async () => {
-      try {
-        const response = await axios.get("http://localhost:8080/configMap");
-        setKeaDhcp4Conf(JSON.parse(response.data["kea-dhcp4.conf"]));
-      } catch (error: unknown) {
-        if (axios.isAxiosError(error)) {
-          console.error(error.response);
-        } else {
-          console.error("Unexpected error:", error);
-        }
-      }
-    };
-    getSubnets();
-  }, []);
-
   // function to add subnet
   const addSubnet = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
@@ -56,37 +30,32 @@ const AddSubnetToExsisting = () => {
     const routerValue = (document.getElementById("router") as HTMLInputElement)
       .value;
     const dnsValue = (document.getElementById("dns") as HTMLInputElement).value;
-    const inputSubnet = {
-      id: (keaDhcp4Conf?.Dhcp4?.subnet4?.length ?? 0) + 1,
-      subnet: subnetValue,
-      pools: [{ pool: `${poolStartValue} - ${poolEndValue}` }],
-      "option-data": [
-        { name: "routers", data: routerValue },
-        { name: "domain-name-servers", data: dnsValue },
-      ],
-    };
+
     try {
-      if (keaDhcp4Conf) {
-        keaDhcp4Conf.Dhcp4.subnet4.forEach((subnet) => {
-          if (subnet.subnet === subnetValue) {
-            toast.warning("Subnet already exists");
-            throw new Error("Subnet already exists");
-          }
-        });
-        const updatedKeaConfig = {
-          ...keaDhcp4Conf,
-          Dhcp4: {
-            ...keaDhcp4Conf.Dhcp4,
-            subnet4: [...keaDhcp4Conf.Dhcp4.subnet4, inputSubnet],
+      await axios.post("http://localhost:8080/subnets", {
+        subnet: subnetValue,
+        pools: [
+          {
+            pool: `${poolStartValue} - ${poolEndValue}`,
           },
-        };
-        setKeaDhcp4Conf(updatedKeaConfig);
-        const response = await axios.post("http://localhost:8080/configMap", {
-          "kea-dhcp4.conf": JSON.stringify(updatedKeaConfig, null, 2),
-        });
-        setKeaDhcp4Conf(response.data["kea-dhcp4.conf"]);
-        toast.success("Subnet added successfully");
-      }
+        ],
+        "option-data": [
+          {
+            name: "router",
+            data: routerValue,
+          },
+          {
+            name: "dns",
+            data: dnsValue,
+          },
+        ],
+      });
+      (document.getElementById("subnet") as HTMLInputElement).value = "";
+      (document.getElementById("pool-start") as HTMLInputElement).value = "";
+      (document.getElementById("pool-end") as HTMLInputElement).value = "";
+      (document.getElementById("router") as HTMLInputElement).value = "";
+      (document.getElementById("dns") as HTMLInputElement).value = "";
+      toast.success("Subnet added successfully");
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
         console.error(error.response);

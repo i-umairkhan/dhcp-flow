@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/i-umairkhan/dhcp-flow/db"
+	"github.com/i-umairkhan/dhcp-flow/types"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
@@ -22,8 +23,8 @@ type Keadhcp4ConfFile struct {
 func ConfigMapHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		// get configmap
-		var configOptions ConfigOptions
 		// query db for config options
+		var configOptions types.ConfigOptions
 		err := db.DB.QueryRow("SELECT namespace, label FROM configOptions").Scan(&configOptions.Namespace, &configOptions.Label)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -67,7 +68,7 @@ func ConfigMapHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		// query db for config options
-		var configOptions ConfigOptions
+		var configOptions types.ConfigOptions
 		err = db.DB.QueryRow("SELECT namespace, label FROM configOptions").Scan(&configOptions.Namespace, &configOptions.Label)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)

@@ -75,9 +75,15 @@ export type PodItem = {
   
 
 // subnet type
-export type subnetType = {
+export type Subnet = {
   id: number;
   subnet: string;
-  pools: { pool: string }[];
-  "option-data": { name: string; data: string }[];
+  pools: Array<{
+    pool: string;
+  }>;
+  "option-data": Array<{
+    name: string;
+    data: string;
+  }>;
+  status: string;
 };

@@ -5,19 +5,14 @@ import (
 	"net/http"
 
 	"github.com/i-umairkhan/dhcp-flow/db"
+	"github.com/i-umairkhan/dhcp-flow/types"
 )
-
-// struct for config options
-type ConfigOptions struct {
-	Namespace string `json:"namespace"`
-	Label     string `json:"label"`
-}
 
 // config options handler
 func ConfigOptionsHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		// get config options
-		var configOptions ConfigOptions
+		var configOptions types.ConfigOptions
 		// query db for config options
 		err := db.DB.QueryRow("SELECT namespace, label FROM configOptions").Scan(&configOptions.Namespace, &configOptions.Label)
 		if err != nil {
@@ -30,7 +25,7 @@ func ConfigOptionsHandler(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(configOptions)
 	} else if r.Method == "POST" {
 		// update config options
-		var configOptions ConfigOptions
+		var configOptions types.ConfigOptions
 		err := json.NewDecoder(r.Body).Decode(&configOptions)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
