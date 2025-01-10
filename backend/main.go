@@ -26,7 +26,7 @@ func main() {
 
 	// cors handler
 	c := cors.New(cors.Options{
-		AllowedMethods: []string{"GET", "POST", "DELETE"},
+		AllowedMethods: []string{"GET", "POST", "DELETE", "PUT"},
 	})
 	handler := c.Handler(mux)
 
