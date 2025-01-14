@@ -18,7 +18,7 @@ import (
 func DeployHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		// quering subnets from db
-		rows, err := db.DB.Query("SELECT * FROM subnets ORDER BY subnet ASC")
+		rows, err := db.DB.Query("SELECT * FROM subnets WHERE status != 'deleted' ORDER BY subnet ASC")
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(err.Error()))

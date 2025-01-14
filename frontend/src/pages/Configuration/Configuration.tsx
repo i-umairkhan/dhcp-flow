@@ -122,15 +122,13 @@ const Configuration = () => {
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem className="font-semibold text-base">
-              Configuration
+              Settings
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
         <div>
-          <p className="font-bold text-xl">Configuration</p>
-          <p className="text-gray-500">
-            Manage your application configuration and settings.
-          </p>
+          <p className="font-bold text-xl">Settings</p>
+          <p className="text-gray-500">Manage your application settings.</p>
         </div>
         <Separator />
         <form
@@ -184,7 +182,7 @@ const Configuration = () => {
           </div>
           {kubeConfig && (
             <Button
-              className="bg-red-500 hover:bg-red-600 px-32 w-48 font-bold"
+              className="bg-red-600 hover:bg-red-600 px-32 w-48 font-bold"
               onClick={deleteKubeConfig}
             >
               Delete Uploaded Kubeconfig

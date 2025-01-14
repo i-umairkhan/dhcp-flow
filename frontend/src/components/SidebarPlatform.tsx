@@ -16,6 +16,8 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
+import { Link } from "react-router";
+import { useLocation } from "react-router";
 
 // sidebarplatform component
 export function SidebarPlatform({
@@ -32,6 +34,8 @@ export function SidebarPlatform({
     }[];
   }[];
 }) {
+  let location = useLocation();
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Platform</SidebarGroupLabel>
@@ -54,11 +58,18 @@ export function SidebarPlatform({
               <CollapsibleContent>
                 <SidebarMenuSub>
                   {item.items?.map((subItem) => (
-                    <SidebarMenuSubItem key={subItem.title}>
+                    <SidebarMenuSubItem
+                      key={subItem.title}
+                      className={
+                        subItem.url === location.pathname
+                          ? "bg-gray-100 rounded-sm"
+                          : ""
+                      }
+                    >
                       <SidebarMenuSubButton asChild>
-                        <a href={subItem.url}>
+                        <Link to={subItem.url}>
                           <span>{subItem.title}</span>
-                        </a>
+                        </Link>
                       </SidebarMenuSubButton>
                     </SidebarMenuSubItem>
                   ))}

@@ -19,6 +19,8 @@ CREATE TABLE subnets (
     dns TEXT,
     status TEXT
 );
+-- enable Write-Ahead Logging (WAL) mode
+PRAGMA journal_mode=WAL;
 
 -- insert default user and config options
 INSERT INTO users (username, password) VALUES ('admin', 'admin');

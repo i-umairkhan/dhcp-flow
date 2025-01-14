@@ -20,9 +20,9 @@ createRoot(document.getElementById("root")!).render(
       <AppSidebar />
       <Routes>
         <Route path="/" element={<Dashboard />} />
-        <Route path="/configuration" element={<Configuration />} />
-        <Route path="/show-subnets" element={<ShowSubnets />} />
-        <Route path="/add-subnet" element={<AddSubnetToExsisting />} />
+        <Route path="/settings" element={<Configuration />} />
+        <Route path="/manage-subnets" element={<ShowSubnets />} />
+        <Route path="/add-new-subnet" element={<AddSubnetToExsisting />} />
       </Routes>
     </SidebarProvider>
   </BrowserRouter>,

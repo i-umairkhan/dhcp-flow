@@ -3,6 +3,8 @@ package handlers
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -118,7 +120,7 @@ func SubnetsHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		// inserting subnet into db
-		_, err = db.DB.Exec("REPLACE INTO subnets (id, subnet, pool, router, dns, status) VALUES ($1, $2, $3, $4, $5, $6)", subnet.ID, subnet.Subnet, subnet.Pools[0].Pool, subnet.OptionData[0].Data, subnet.OptionData[1].Data, "local")
+		_, err = db.DB.Exec("UPDATE subnets SET subnet = $2, pool = $3, router = $4, dns = $5, status = $6 WHERE id = $1", subnet.Subnet, subnet.Pools[0].Pool, subnet.OptionData[0].Data, subnet.OptionData[1].Data, "local", subnet.ID)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(err.Error()))
@@ -157,7 +159,63 @@ func SubnetsHandler(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(struct {
 			Data []types.Subnet `json:"subnets"`
 		}{Data: subnets})
+	} else if r.Method == "DELETE" {
+		// delete subnet
+		// this functions adds subnets from configmap to db
+		AddSubnetsFromConfigToDB(w, r)
+		var subnet struct {
+			ID int `json:"id"`
+		}
+		err := json.NewDecoder(r.Body).Decode(&subnet)
 
+		body, _ := io.ReadAll(r.Body)
+		fmt.Printf("Raw body: %s\n", body)
+
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte(err.Error()))
+			return
+		}
+		// deleting subnet from db
+		_, err = db.DB.Exec("UPDATE subnets SET status = $1 WHERE id = $2", "deleted", subnet.ID)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+			return
+		}
+		// quering subnets from db
+		rows, err := db.DB.Query("SELECT * FROM subnets ORDER BY subnet ASC")
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+			return
+		}
+		// send subnets in response
+		var subnets []types.Subnet
+		for rows.Next() {
+			var (
+				id     int
+				subnet string
+				pool   string
+				router string
+				dns    string
+				status string
+			)
+			rows.Scan(&id, &subnet, &pool, &router, &dns, &status)
+			subnets = append(subnets, types.Subnet{ID: id, Subnet: subnet, Pools: []struct {
+				Pool string `json:"pool"`
+			}{{Pool: pool}}, OptionData: []struct {
+				Name string `json:"name"`
+				Data string `json:"data"`
+			}{
+				{Name: "router", Data: router},
+				{Name: "dns-server", Data: dns},
+			}, Status: status})
+		}
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(struct {
+			Data []types.Subnet `json:"subnets"`
+		}{Data: subnets})
 	}
 }
 
@@ -196,11 +254,12 @@ func AddSubnetsFromConfigToDB(w http.ResponseWriter, r *http.Request) {
 	json.Unmarshal([]byte(configMaps.Items[0].Data["kea-dhcp4.conf"]), &keaDhcp4)
 	// inserting subnets from struct keaDhcp4 to db
 	for _, v := range keaDhcp4.Dhcp4.Subnet4 {
-		_, err = db.DB.Exec("INSERT OR IGNORE INTO subnets (subnet, pool, router, dns, status) VALUES ($1, $2, $3, $4, $5)", v.Subnet, v.Pools[0].Pool, v.OptionData[0].Data, v.OptionData[1].Data, "running")
+		_, err = db.DB.Exec("INSERT OR IGNORE INTO subnets (id, subnet, pool, router, dns, status) VALUES ($1, $2, $3, $4, $5, $6)", v.ID, v.Subnet, v.Pools[0].Pool, v.OptionData[0].Data, v.OptionData[1].Data, "running")
 	}
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
 		return
 	}
+
 }

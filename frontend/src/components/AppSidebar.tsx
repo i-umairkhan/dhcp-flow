@@ -19,25 +19,29 @@ const data = {
       icon: Grip,
     },
     {
-      name: "Configuration",
-      url: "/configuration",
+      name: "Settings",
+      url: "/settings",
       icon: Bolt,
     },
   ],
   sidebarPlatformSectionData: [
     {
-      title: "Subnets",
+      title: "Configuration",
       url: "#",
       icon: SquareTerminal,
       isActive: true,
       items: [
         {
-          title: "Show Subnets",
-          url: "/show-subnets",
+          title: "Show Configuration",
+          url: "/show-configuration",
         },
         {
-          title: "Add Subnet to Existing",
-          url: "/add-subnet",
+          title: "Manage Subnets",
+          url: "/manage-subnets",
+        },
+        {
+          title: "Add new Subnets",
+          url: "/add-new-subnet",
         },
       ],
     },
@@ -47,19 +51,19 @@ const data = {
 // appsidebar component
 const AppSidebar = () => {
   return (
-    <Sidebar>
-      <SidebarHeader>
-        <SidebarMenuButton size="lg">
+    <Sidebar className="">
+      <SidebarHeader className="bg-gray-200">
+        <SidebarMenuButton size="lg" className="">
           <div className="flex justify-center items-center bg-sidebar-primary rounded-lg text-sidebar-primary-foreground aspect-square size-8">
             <GalleryVerticalEnd className="size-4" />
           </div>
-          <div className="flex-1 grid text-left text-sm leading-tight">
+          <div className="flex-1 grid text-black text-left text-sm leading-tight">
             <span className="font-semibold truncate">DHCP Flow</span>
             <span className="text-xs truncate">Open Source</span>
           </div>
         </SidebarMenuButton>
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="bg-gray-200">
         <SidebarStartHere data={data.startHereSectionData} />
         <SidebarPlatform data={data.sidebarPlatformSectionData} />
       </SidebarContent>

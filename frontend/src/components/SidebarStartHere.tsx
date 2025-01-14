@@ -8,6 +8,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { Link } from "react-router";
+import { useLocation } from "react-router";
 
 // sidebarstarthere component
 export function SidebarStartHere({
@@ -19,17 +21,24 @@ export function SidebarStartHere({
     icon: LucideIcon;
   }[];
 }) {
+  let location = useLocation();
+
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
       <SidebarGroupLabel>Start Here</SidebarGroupLabel>
       <SidebarMenu>
         {data.map((item) => (
           <SidebarMenuItem key={item.name}>
-            <SidebarMenuButton asChild>
-              <a href={item.url}>
+            <SidebarMenuButton
+              asChild
+              className={
+                item.url === location.pathname ? "bg-gray-100 rounded-sm" : ""
+              }
+            >
+              <Link to={item.url}>
                 <item.icon />
                 <span>{item.name}</span>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         ))}
