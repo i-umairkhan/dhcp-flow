@@ -216,6 +216,47 @@ func SubnetsHandler(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(struct {
 			Data []types.Subnet `json:"subnets"`
 		}{Data: subnets})
+	} else if r.Method == "PATCH" {
+		_, err := db.DB.Exec("DELETE FROM subnets")
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+			return
+		}
+		AddSubnetsFromConfigToDB(w, r)
+		// quering subnets from db
+		rows, err := db.DB.Query("SELECT * FROM subnets ORDER BY subnet ASC")
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+			return
+		}
+		// send subnets in response
+		var subnets []types.Subnet
+		for rows.Next() {
+			var (
+				id     int
+				subnet string
+				pool   string
+				router string
+				dns    string
+				status string
+			)
+			rows.Scan(&id, &subnet, &pool, &router, &dns, &status)
+			subnets = append(subnets, types.Subnet{ID: id, Subnet: subnet, Pools: []struct {
+				Pool string `json:"pool"`
+			}{{Pool: pool}}, OptionData: []struct {
+				Name string `json:"name"`
+				Data string `json:"data"`
+			}{
+				{Name: "router", Data: router},
+				{Name: "dns-server", Data: dns},
+			}, Status: status})
+		}
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(struct {
+			Data []types.Subnet `json:"subnets"`
+		}{Data: subnets})
 	}
 }
 

@@ -32,12 +32,16 @@ export function SidebarStartHere({
             <SidebarMenuButton
               asChild
               className={
-                item.url === location.pathname ? "bg-gray-100 rounded-sm" : ""
+                item.url === location.pathname ? "bg-gray-100 rounded-sm " : ""
               }
             >
               <Link to={item.url}>
                 <item.icon />
-                <span>{item.name}</span>
+                <span
+                  className={item.url === location.pathname ? "font-bold" : ""}
+                >
+                  {item.name}
+                </span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

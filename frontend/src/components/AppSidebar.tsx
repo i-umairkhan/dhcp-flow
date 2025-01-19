@@ -1,5 +1,5 @@
 // external libraries imports
-import { Bolt, GalleryVerticalEnd, Grip, SquareTerminal } from "lucide-react";
+import { Bolt, Code, GalleryVerticalEnd, Grip, Network } from "lucide-react";
 // components imports
 import { SidebarPlatform } from "@/components/SidebarPlatform";
 import { SidebarStartHere } from "@/components/SidebarStartHere";
@@ -26,15 +26,27 @@ const data = {
   ],
   sidebarPlatformSectionData: [
     {
-      title: "Configuration",
+      title: "Configuration Managment",
       url: "#",
-      icon: SquareTerminal,
+      icon: Code,
       isActive: true,
       items: [
         {
           title: "Show Configuration",
           url: "/show-configuration",
         },
+        {
+          title: "Custom Configuration",
+          url: "/custom-configuration",
+        },
+      ],
+    },
+    {
+      title: "Subnet Managment",
+      url: "#",
+      icon: Network,
+      isActive: true,
+      items: [
         {
           title: "Manage Subnets",
           url: "/manage-subnets",
@@ -53,13 +65,13 @@ const AppSidebar = () => {
   return (
     <Sidebar className="">
       <SidebarHeader className="bg-gray-200">
-        <SidebarMenuButton size="lg" className="">
+        <SidebarMenuButton size="lg" className="bg-gray-300">
           <div className="flex justify-center items-center bg-sidebar-primary rounded-lg text-sidebar-primary-foreground aspect-square size-8">
             <GalleryVerticalEnd className="size-4" />
           </div>
           <div className="flex-1 grid text-black text-left text-sm leading-tight">
             <span className="font-semibold truncate">DHCP Flow</span>
-            <span className="text-xs truncate">Open Source</span>
+            <span className="text-xs truncate">Pro Edition</span>
           </div>
         </SidebarMenuButton>
       </SidebarHeader>

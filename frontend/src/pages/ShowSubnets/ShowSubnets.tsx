@@ -104,6 +104,23 @@ const ShowShubnet = () => {
       toast.error("Failed to push config");
     }
   };
+  const resetConfig = async () => {
+    try {
+      await axios.patch("http://localhost:8080/subnets");
+      toast.success("Push Configuration");
+      const response = await axios.get("http://localhost:8080/subnets");
+      setSubnets(response.data.subnets);
+      setFilteredSubnets(response.data.subnets);
+      toast.success("Subnets fetched successfully");
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        console.error(error.response);
+      } else {
+        console.error("Unexpected error:", error);
+      }
+      toast.error("Failed to push config");
+    }
+  };
   const deleteSubnet = async () => {
     try {
       const response = await axios.delete("http://localhost:8080/subnets", {
@@ -281,30 +298,41 @@ const ShowShubnet = () => {
                         {subnet.status}
                       </span>
                     </TableCell>
-                    <TableCell className="flex items-center gap-3 px-6 py-4">
-                      <DialogTrigger>
-                        <Pencil
-                          className="w-auto h-4 text-slate-500 hover:text-slate-900 cursor-pointer"
-                          onClick={() => setEditSubnet(subnet)}
-                        />
-                      </DialogTrigger>
-                      <AlertDialogTrigger>
-                        <Trash2
-                          className="w-auto h-4 text-slate-500 hover:text-slate-900 cursor-pointer"
-                          onClick={() => {
-                            setEditSubnet(subnet);
-                          }}
-                        />
-                      </AlertDialogTrigger>
-                    </TableCell>
+                    {subnet.status != "deleted" && (
+                      <TableCell className="flex items-center gap-3 px-6 py-4">
+                        <DialogTrigger>
+                          <Pencil
+                            className="w-auto h-4 text-slate-500 hover:text-slate-900 cursor-pointer"
+                            onClick={() => setEditSubnet(subnet)}
+                          />
+                        </DialogTrigger>
+                        <AlertDialogTrigger>
+                          <Trash2
+                            className="w-auto h-4 text-slate-500 hover:text-slate-900 cursor-pointer"
+                            onClick={() => {
+                              setEditSubnet(subnet);
+                            }}
+                          />
+                        </AlertDialogTrigger>
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
             <div className="flex justify-between w-2/3">
-              <Button type="submit" className="w-44" onClick={pushConfig}>
-                Push Configuration
-              </Button>
+              <div className="flex gap-4">
+                <Button type="submit" className="w-44" onClick={pushConfig}>
+                  Push Configuration
+                </Button>
+                <Button
+                  type="submit"
+                  className="bg-red-600 hover:bg-red-700 w-44 font-bold"
+                  onClick={resetConfig}
+                >
+                  Reset Configuration
+                </Button>
+              </div>
               <div>
                 <Pagination>
                   <PaginationContent>

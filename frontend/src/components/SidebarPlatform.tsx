@@ -62,13 +62,21 @@ export function SidebarPlatform({
                       key={subItem.title}
                       className={
                         subItem.url === location.pathname
-                          ? "bg-gray-100 rounded-sm"
+                          ? "bg-gray-100 rounded-sm "
                           : ""
                       }
                     >
                       <SidebarMenuSubButton asChild>
                         <Link to={subItem.url}>
-                          <span>{subItem.title}</span>
+                          <span
+                            className={
+                              subItem.url === location.pathname
+                                ? "font-bold"
+                                : ""
+                            }
+                          >
+                            {subItem.title}
+                          </span>
                         </Link>
                       </SidebarMenuSubButton>
                     </SidebarMenuSubItem>
